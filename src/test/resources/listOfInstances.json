@@ -1,0 +1,19 @@
+{
+  "list": [
+    {
+      "ipv4": [
+      ],
+      "name": "java-app-builder-1",
+      "release": "Ubuntu 24.04 LTS",
+      "state": "Stopped"
+    },
+    {
+      "ipv4": [
+        "192.168.73.3"
+      ],
+      "name": "javascript-app-builder-1",
+      "release": "Ubuntu 24.04 LTS",
+      "state": "Running"
+    }
+  ]
+}
