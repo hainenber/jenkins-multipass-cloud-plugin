@@ -1,0 +1,19 @@
+<?jelly escape-by-default='true'?>
+
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+    <f:entry field="distroAlias" title="${%Distribution Alias}">
+        <f:select />
+    </f:entry>
+    <f:entry field="cpus" title="${% CPUs}">
+        <f:textbox />
+    </f:entry>
+    <f:entry field="memory" title="${% Memory}">
+        <f:textbox />
+    </f:entry>
+    <f:entry field="disk" title="${% Disk}">
+        <f:textbox />
+    </f:entry>
+    <f:entry field="cloudConfig" title="${% cloud-init.yaml}">
+        <f:textbox />
+    </f:entry>
+</j:jelly>

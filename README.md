@@ -2,12 +2,11 @@
 
 ## Introduction
 
-TODO Describe what your plugin does here
+A Jenkins cloud plugin dynamically provisions Multipass VMs as Jenkins agent.  
 
 ## Getting started
 
-TODO Tell users how to configure your plugin here, include screenshots, pipeline examples and 
-configuration-as-code examples.
+The plugin is still getting built. Instructions are soon to be filled.
 
 ## Issues
 
