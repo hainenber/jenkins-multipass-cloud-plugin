@@ -9,6 +9,8 @@ on:
 
 jobs:
   update_release_draft:
+    # TODO: Re-enable this once the plugin proves to be usable in real Jenkins.
+    if: false
     runs-on: ubuntu-latest
     steps:
       # Drafts your next Release notes as Pull Requests are merged into the default branch
