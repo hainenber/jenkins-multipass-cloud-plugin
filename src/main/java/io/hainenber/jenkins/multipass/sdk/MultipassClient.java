@@ -8,6 +8,9 @@ import org.apache.commons.exec.PumpStreamHandler;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 public class MultipassClient {
@@ -36,6 +39,22 @@ public class MultipassClient {
                 objectMapper.readTree(instanceListString).get("list").toString(),
                 new TypeReference<>() {}
         );
+    }
+
+    public void createInstance(String name, String cloudInitConfig, Integer cpus, String memory, String disk, String distroAlias) throws IOException {
+        // Save cloud-init config to temporary file
+        Path cloudInitConfigPath = Files.createTempFile("cloud-init-config", ".yaml");
+        Files.writeString(cloudInitConfigPath, cloudInitConfig, StandardCharsets.UTF_8);
+
+        CommandLine createCmd = CommandLine.parse("multipass launch");
+        createCmd.addArgument(distroAlias);
+        createCmd.addArgument(String.format("--name %s", name));
+        createCmd.addArgument(String.format("--cpus %s", cpus));
+        createCmd.addArgument(String.format("--memory %s", memory));
+        createCmd.addArgument(String.format("--disk %s", disk));
+        createCmd.addArgument(String.format("--cloud-init %s", cloudInitConfigPath.toAbsolutePath()));
+
+        executor.execute(createCmd);
     }
 
     public void terminateInstance(String instanceName) throws IOException {
