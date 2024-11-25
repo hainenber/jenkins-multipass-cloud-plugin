@@ -8,6 +8,7 @@ import hudson.model.Node;
 import hudson.model.labels.LabelAtom;
 import hudson.slaves.Cloud;
 import hudson.slaves.NodeProvisioner;
+import hudson.util.ListBoxModel;
 import io.hainenber.jenkins.multipass.sdk.MultipassClient;
 import jakarta.annotation.Nonnull;
 import jenkins.model.Jenkins;
@@ -230,6 +231,18 @@ public class MultipassCloud extends Cloud {
         @Override
         public String getDisplayName() {
             return Messages.displayName();
+        }
+
+        // Fill out supported Ubuntu distribution aliases
+        // 24.04 - noble (default)
+        // 22.04 - jammy
+        // 20.04 - focal
+        public ListBoxModel doFillDistroAliasItems() {
+            final ListBoxModel options = new ListBoxModel();
+            options.add(DEFAULT_AGENT_DISTRIBUTION_ALIAS);
+            options.add("jammy");
+            options.add("focal");
+            return options;
         }
     }
 }
