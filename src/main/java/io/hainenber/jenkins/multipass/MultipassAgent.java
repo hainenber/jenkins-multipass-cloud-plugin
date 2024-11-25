@@ -13,16 +13,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.io.Serial;
 import java.util.Objects;
 
 public class MultipassAgent extends AbstractCloudSlave {
     private static final Logger LOGGER = LoggerFactory.getLogger(MultipassAgent.class);
     private final transient MultipassCloud cloud;
-
-    @Serial
     private static final long serialVersionUID = 2553788927582449937L;
-
 
     /**
      * Constructor
