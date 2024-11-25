@@ -15,7 +15,7 @@
   <packaging>hpi</packaging>
 
   <name>Multipass Cloud Plugin</name>
-  <url>https://github.com/jenkinsci/${project.artifactId}-plugin</url>
+  <url>https://github.com/hainenber/jenkins-${project.artifactId}-plugin</url>
   <licenses>
     <license>
       <name>MIT License</name>
@@ -36,7 +36,7 @@
 
     <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
     <jenkins.version>2.462.3</jenkins.version>
-    <gitHubRepo>jenkinsci/${project.artifactId}-plugin</gitHubRepo>
+    <gitHubRepo>hainenber/jenkins-${project.artifactId}-plugin</gitHubRepo>
 
     <spotless.check.skip>false</spotless.check.skip>
 
