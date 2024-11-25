@@ -1,5 +1,7 @@
 package io.hainenber.jenkins.multipass;
 
+import hainenber.jenkins.multipass.Messages;
+import hudson.Extension;
 import hudson.model.Computer;
 import hudson.model.Descriptor;
 import hudson.model.Label;
@@ -29,7 +31,6 @@ import java.util.concurrent.Future;
  */
 public class MultipassCloud extends Cloud {
     private static final Logger LOGGER = LoggerFactory.getLogger(MultipassCloud.class);
-    private static final int DEFAULT_AGENT_TIMEOUT = 120;
     private static final String DEFAULT_AGENT_DISTRIBUTION_ALIAS = "noble";
 
     private String[] labels;
@@ -221,5 +222,15 @@ public class MultipassCloud extends Cloud {
     @DataBoundSetter
     public void setDistroAlias(String distroAlias) {
         this.distroAlias = distroAlias;
+    }
+
+    @Extension
+    @SuppressWarnings("unused")
+    public static class DescriptorImpl extends Descriptor<Cloud> {
+        @Nonnull
+        @Override
+        public String getDisplayName() {
+            return Messages.displayName();
+        }
     }
 }
