@@ -1,6 +1,5 @@
 package io.hainenber.jenkins.multipass;
 
-import hainenber.jenkins.multipass.Messages;
 import hudson.Extension;
 import hudson.model.Computer;
 import hudson.model.Descriptor;
