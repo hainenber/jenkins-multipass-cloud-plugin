@@ -27,18 +27,18 @@ import java.util.concurrent.Future;
  * Root class that contains all configuration state about
  * Multipass cloud agents.
  *
- * @author dotronghai
+ * @author hainenber
  */
 public class MultipassCloud extends Cloud {
     private static final Logger LOGGER = LoggerFactory.getLogger(MultipassCloud.class);
     private static final String DEFAULT_AGENT_DISTRIBUTION_ALIAS = "noble";
 
-    private String[] labels;
+    private String label;
     private String distroAlias;
-    private Integer cpus;
+    private Integer cpu;
     private String memory;
     private String disk;
-    private String cloudConfig;
+    private String cloudInitConfig;
 
     private transient MultipassClient client;
     private transient long lastProvisionTime = 0;
@@ -52,8 +52,8 @@ public class MultipassCloud extends Cloud {
      * @param name the name of the cloud, will auto-generated if not inputted.
      */
     @DataBoundConstructor
-    public MultipassCloud(String name, @Nonnull String projectName) {
-        super(StringUtils.isNotBlank(name) ? name: String.format("multipass_cloud_%s", jenkinsController().clouds.size()));
+    public MultipassCloud(String name) {
+        super(StringUtils.isNotBlank(name) ? name : String.format("multipass_cloud_%s", jenkinsController().clouds.size()));
         LOGGER.info("[multipass-cloud] Initializing Cloud {}", this);
     }
 
@@ -98,10 +98,6 @@ public class MultipassCloud extends Cloud {
             this.client = new MultipassClient();
         }
         return this.client;
-    }
-
-    public String getLabel() {
-        return "";
     }
 
     /** {@inheritDoc} */
@@ -179,49 +175,108 @@ public class MultipassCloud extends Cloud {
         return this.name;
     }
 
+    /**
+     * Getter for field <code>cloudInitConfig</code>.
+     * @return a @{link String} object.
+     */
     public String getCloudInitConfig() {
-        return this.cloudConfig;
+        return this.cloudInitConfig;
     }
 
+    /**
+     * Setter for the field <code>cloudInitConfig</code>
+     * @param cloudInitConfig a {@link String} object.
+     */
     @DataBoundSetter
-    public void setCloudInitConfig(String cloudConfig) {
-        this.cloudConfig = cloudConfig;
+    public void setCloudInitConfig(String cloudInitConfig) {
+        this.cloudInitConfig = cloudInitConfig;
     }
 
-    public Integer getCPUs() {
-        return this.cpus;
+    /**
+     * Getter for field <code>cpu</code>.
+     * @return a @{link Integer} object.
+     */
+    public Integer getCpu() {
+        return this.cpu;
     }
 
+    /**
+     * Setter for the field <code>cpu</code>
+     * @param cpu a {@link Integer} object.
+     */
     @DataBoundSetter
-    public void setCpus(Integer cpus) {
-        this.cpus = cpus;
+    public void setCpu(Integer cpu) {
+        this.cpu = cpu;
     }
 
+    /**
+     * Getter for field <code>cpu</code>.
+     * @return a @{link String} object.
+     */
+    @Nonnull
     public String getMemory() {
         return this.memory;
     }
 
+    /**
+     * Setter for the field <code>memory</code>
+     * @param memory a {@link String} object.
+     */
     @DataBoundSetter
     public void setMemory(String memory) {
         this.memory = memory;
     }
 
+    /**
+     * Getter for field <code>disk</code>.
+     * @return a @{link String} object.
+     */
+    @Nonnull
     public String getDisk() {
         return this.disk;
     }
 
+    /**
+     * Setter for the field <code>disk</code>
+     * @param disk a {@link String} object.
+     */
     @DataBoundSetter
     public void setDisk(String disk) {
         this.disk = disk;
     }
 
+    /**
+     * Getter for field <code>distroAlias</code>.
+     * @return a @{link String} object.
+     */
     public String getDistroAlias() {
         return Objects.isNull(distroAlias) ? DEFAULT_AGENT_DISTRIBUTION_ALIAS : distroAlias;
     }
 
+    /**
+     * Setter for the field <code>distroAlias</code>
+     * @param distroAlias a {@link String} object.
+     */
     @DataBoundSetter
     public void setDistroAlias(String distroAlias) {
         this.distroAlias = distroAlias;
+    }
+
+    /**
+     * Getter for field <code>label</code>.
+     * @return a @{link String} object.
+     */
+    public String getLabel() {
+        return this.label;
+    }
+
+    /**
+     * Setter for the field <code>label</code>
+     * @param label a {@link String} object.
+     */
+    @DataBoundSetter
+    public void setLabel(String label) {
+        this.label = label;
     }
 
     @Extension

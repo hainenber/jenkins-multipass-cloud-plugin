@@ -51,7 +51,7 @@ public class MultipassLauncher extends ComputerLauncher {
             cloud.getMultipassClient().createInstance(
                     cloud.getName(),
                     cloud.getCloudInitConfig(),
-                    cloud.getCPUs(),
+                    cloud.getCpu(),
                     cloud.getMemory(),
                     cloud.getDisk(),
                     cloud.getDistroAlias()
