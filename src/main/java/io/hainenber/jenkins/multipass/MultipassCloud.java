@@ -103,7 +103,7 @@ public class MultipassCloud extends Cloud {
     /** {@inheritDoc} */
     @Override
     public synchronized Collection<NodeProvisioner.PlannedNode> provision(CloudState cloudState, int excessWorkload) {
-        List<NodeProvisioner.PlannedNode> nodeList = new ArrayList<NodeProvisioner.PlannedNode>();
+        var nodeList = new ArrayList<NodeProvisioner.PlannedNode>();
         Label label = cloudState.getLabel();
 
         // Guard against non-matching labels
@@ -165,6 +165,15 @@ public class MultipassCloud extends Cloud {
                 .map(MultipassAgent.class::cast)
                 .filter(a -> a.getLauncher().isLaunchSupported())
                 .count();
+    }
+
+    /** {@inheritDoc} */
+    @Override
+    public boolean canProvision(CloudState cloudState) {
+        Label cloudLabel = cloudState.getLabel();
+        boolean canProvision = Objects.isNull(cloudLabel) || cloudLabel.matches(List.of(new LabelAtom(getLabel())));
+        LOGGER.info("[multipass-cloud] Check provisioning capacity for label '{}': {}", label, canProvision);
+        return canProvision;
     }
 
     /**
