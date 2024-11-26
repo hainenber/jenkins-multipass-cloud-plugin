@@ -46,13 +46,14 @@ public class MultipassClient {
         Path cloudInitConfigPath = Files.createTempFile("cloud-init-config", ".yaml");
         Files.writeString(cloudInitConfigPath, cloudInitConfig, StandardCharsets.UTF_8);
 
+        // Add Multipass arguments
         CommandLine createCmd = CommandLine.parse("multipass launch");
+        createCmd.addArguments(new String[] {"--name", name} );
+        createCmd.addArguments(new String[] {"--cpus", cpus.toString() });
+        createCmd.addArguments(new String[] {"--memory", memory});
+        createCmd.addArguments(new String[] {"--disk", disk});
+        createCmd.addArguments(new String[] {"--cloud-init", cloudInitConfigPath.toAbsolutePath().toString() });
         createCmd.addArgument(distroAlias);
-        createCmd.addArgument(String.format("--name %s", name));
-        createCmd.addArgument(String.format("--cpus %s", cpus));
-        createCmd.addArgument(String.format("--memory %s", memory));
-        createCmd.addArgument(String.format("--disk %s", disk));
-        createCmd.addArgument(String.format("--cloud-init %s", cloudInitConfigPath.toAbsolutePath()));
 
         executor.execute(createCmd);
     }

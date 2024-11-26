@@ -5,6 +5,7 @@ import hudson.model.TaskListener;
 import hudson.slaves.ComputerLauncher;
 import hudson.slaves.SlaveComputer;
 import jakarta.annotation.Nonnull;
+import org.apache.commons.lang.RandomStringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,9 +16,9 @@ public class MultipassLauncher extends ComputerLauncher {
     private final MultipassCloud cloud;
 
     /**
-     * Constructor for MultipassLauncher
+     * Constructor for MultipassLauncher.
      *
-     * @param cloud
+     * @param cloud a {@link MultipassCloud} object.
      */
     public MultipassLauncher(MultipassCloud cloud) {
         super();
@@ -49,7 +50,7 @@ public class MultipassLauncher extends ComputerLauncher {
         LOGGER.info("[multipass-cloud] Launching {} with {}", computer, listener);
         try {
             cloud.getMultipassClient().createInstance(
-                    cloud.getName(),
+                    String.format("%s-%s", cloud.getName(), RandomStringUtils.randomAlphanumeric(4)),
                     cloud.getCloudInitConfig(),
                     cloud.getCpu(),
                     cloud.getMemory(),
@@ -57,7 +58,6 @@ public class MultipassLauncher extends ComputerLauncher {
                     cloud.getDistroAlias()
             );
             LOGGER.info("[multipass-cloud] Waiting for agent '{}' to be connected",  computer);
-
         } catch (Exception e) {
             LOGGER.error("[multipass-cloud] Exception when launching Multipass VM: {}", e.getMessage());
             listener.fatalError("[multipass-cloud] Exception when launching Multipass VM: %s", e.getMessage());
