@@ -4,6 +4,9 @@
     <f:entry field="name" title="${%Name}">
         <f:textbox />
     </f:entry>
+    <f:entry field="label" title="${%Label}">
+        <f:textbox />
+    </f:entry>
     <f:entry field="distroAlias" title="${%Distribution Alias}">
         <f:select />
     </f:entry>
