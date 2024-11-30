@@ -7,13 +7,12 @@ import hudson.slaves.AbstractCloudSlave;
 import hudson.slaves.ComputerLauncher;
 import io.hainenber.jenkins.multipass.sdk.MultipassClient;
 import jakarta.annotation.Nonnull;
+import java.io.IOException;
+import java.util.Objects;
 import jenkins.model.Jenkins;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.util.Objects;
 
 public class MultipassAgent extends AbstractCloudSlave {
     private static final Logger LOGGER = LoggerFactory.getLogger(MultipassAgent.class);
@@ -28,8 +27,10 @@ public class MultipassAgent extends AbstractCloudSlave {
      * @throws hudson.model.Descriptor.FormException if any.
      * @throws java.io.IOException                   if any.
      */
-    public MultipassAgent(MultipassCloud cloud, @Nonnull String name, @Nonnull ComputerLauncher launcher) throws Descriptor.FormException, IOException {
-        super(name, "/build", launcher);
+    public MultipassAgent(MultipassCloud cloud, @Nonnull String name, @Nonnull ComputerLauncher launcher)
+            throws Descriptor.FormException, IOException {
+        // TODO: remove this hardcoded value.
+        super(name, "/home/jenkins", launcher);
         this.cloud = cloud;
     }
 
@@ -65,7 +66,9 @@ public class MultipassAgent extends AbstractCloudSlave {
                 multipassClient.terminateInstance(instanceName);
                 LOGGER.info("[multipass-cloud]: Terminated instance named '{}'", instanceName);
                 Jenkins.get().removeNode(this);
-                LOGGER.info("[multipass-cloud]: Removed Multipass instance named '{}' from Jenkins controller", instanceName);
+                LOGGER.info(
+                        "[multipass-cloud]: Removed Multipass instance named '{}' from Jenkins controller",
+                        instanceName);
             } catch (IOException e) {
                 LOGGER.warn("[multipass-cloud]: Failed to terminate Multipass instance named '{}'", instanceName);
             }

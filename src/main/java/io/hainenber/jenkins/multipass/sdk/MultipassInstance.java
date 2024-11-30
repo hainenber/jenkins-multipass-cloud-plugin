@@ -2,7 +2,7 @@ package io.hainenber.jenkins.multipass.sdk;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.annotation.Nullable;
-
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -33,7 +33,7 @@ public class MultipassInstance {
 
     @Nullable
     public List<String> getIpv4() {
-        return ipv4;
+        return Objects.isNull(ipv4) ? new ArrayList<>() : ipv4;
     }
 
     public void setIpv4(@Nullable List<String> ipv4) {
@@ -88,7 +88,14 @@ public class MultipassInstance {
 
     public MultipassInstance() {}
 
-    public MultipassInstance(String name, InstanceState state, int snapshots, List<String> ipv4, String releaseName, String imageHash, int cpus) {
+    public MultipassInstance(
+            String name,
+            InstanceState state,
+            int snapshots,
+            List<String> ipv4,
+            String releaseName,
+            String imageHash,
+            int cpus) {
         this.name = name;
         this.state = state;
         this.snapshots = snapshots;
@@ -103,11 +110,18 @@ public class MultipassInstance {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         MultipassInstance that = (MultipassInstance) o;
-        return getSnapshots() == that.getSnapshots() && getCpus() == that.getCpus() && Objects.equals(getName(), that.getName()) && getState() == that.getState() && Objects.equals(getIpv4(), that.getIpv4()) && Objects.equals(getReleaseName(), that.getReleaseName()) && Objects.equals(getImageHash(), that.getImageHash());
+        return getSnapshots() == that.getSnapshots()
+                && getCpus() == that.getCpus()
+                && Objects.equals(getName(), that.getName())
+                && getState() == that.getState()
+                && Objects.equals(getIpv4(), that.getIpv4())
+                && Objects.equals(getReleaseName(), that.getReleaseName())
+                && Objects.equals(getImageHash(), that.getImageHash());
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(getName(), getState(), getSnapshots(), getIpv4(), getReleaseName(), getImageHash(), getCpus());
+        return Objects.hash(
+                getName(), getState(), getSnapshots(), getIpv4(), getReleaseName(), getImageHash(), getCpus());
     }
 }

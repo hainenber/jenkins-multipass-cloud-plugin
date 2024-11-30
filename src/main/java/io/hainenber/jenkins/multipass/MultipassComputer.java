@@ -5,13 +5,12 @@ import hudson.model.Executor;
 import hudson.model.Queue;
 import hudson.slaves.AbstractCloudComputer;
 import jakarta.annotation.Nonnull;
-import org.apache.commons.lang.time.DurationFormatUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.concurrent.Future;
+import org.apache.commons.lang.time.DurationFormatUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class MultipassComputer extends AbstractCloudComputer<MultipassAgent> {
     private static final Logger LOGGER = LoggerFactory.getLogger(MultipassComputer.class);
@@ -37,14 +36,21 @@ public class MultipassComputer extends AbstractCloudComputer<MultipassAgent> {
     @Override
     public void taskCompleted(Executor executor, Queue.Task task, long durationMS) {
         super.taskCompleted(executor, task, durationMS);
-        LOGGER.info("[multipass-cloud] [{}]: Task in job '{}' completed in {}", this, task.getFullDisplayName(), DurationFormatUtils.formatDurationWords(durationMS, true, true));
-        gracefulShutdown();
+        LOGGER.info(
+                "[multipass-cloud] [{}]: Task in job '{}' completed in {}",
+                this,
+                task.getFullDisplayName(),
+                DurationFormatUtils.formatDurationWords(durationMS, true, true));
     }
 
     @Override
     public void taskCompletedWithProblems(Executor executor, Queue.Task task, long durationMS, Throwable problems) {
         super.taskCompletedWithProblems(executor, task, durationMS, problems);
-        LOGGER.info("[multipass-cloud] [{}]: Task in job '{}' completed with problems in {}", this, task.getFullDisplayName(), DurationFormatUtils.formatDurationWords(durationMS, true, true));
+        LOGGER.info(
+                "[multipass-cloud] [{}]: Task in job '{}' completed with problems in {}",
+                this,
+                task.getFullDisplayName(),
+                DurationFormatUtils.formatDurationWords(durationMS, true, true));
         gracefulShutdown();
     }
 
@@ -53,6 +59,11 @@ public class MultipassComputer extends AbstractCloudComputer<MultipassAgent> {
         return new StringJoiner(", ", MultipassComputer.class.getSimpleName() + "[", "]")
                 .add("cloud=" + cloud)
                 .toString();
+    }
+
+    public Integer getSshPort() {
+        // TODO: refactor away this hardcoded value.
+        return 22;
     }
 
     private void gracefulShutdown() {
@@ -65,7 +76,10 @@ public class MultipassComputer extends AbstractCloudComputer<MultipassAgent> {
                 Thread.sleep(500);
                 MultipassCloud.jenkinsController().removeNode(Objects.requireNonNull(getNode()));
             } catch (Exception e) {
-                LOGGER.info("[multipass-cloud] [{}]: Error encounter when trying to terminate agent: {}", this, e.getClass());
+                LOGGER.info(
+                        "[multipass-cloud] [{}]: Error encounter when trying to terminate agent: {}",
+                        this,
+                        e.getClass());
             }
             return null;
         });

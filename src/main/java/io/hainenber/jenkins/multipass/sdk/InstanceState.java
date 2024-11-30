@@ -8,4 +8,7 @@ public enum InstanceState {
 
     @JsonProperty("Stopped")
     STOPPED,
+
+    @JsonProperty("Deleted")
+    DELETED,
 }

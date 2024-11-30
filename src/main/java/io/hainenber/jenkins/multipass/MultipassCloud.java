@@ -1,27 +1,32 @@
 package io.hainenber.jenkins.multipass;
 
+import com.cloudbees.jenkins.plugins.sshcredentials.SSHAuthenticator;
+import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
+import com.cloudbees.plugins.credentials.common.StandardUsernameListBoxModel;
+import com.cloudbees.plugins.credentials.domains.SchemeRequirement;
+import com.trilead.ssh2.Connection;
 import hudson.Extension;
-import hudson.model.Computer;
-import hudson.model.Descriptor;
-import hudson.model.Label;
-import hudson.model.Node;
+import hudson.model.*;
 import hudson.model.labels.LabelAtom;
+import hudson.security.ACL;
+import hudson.security.AccessControlled;
 import hudson.slaves.Cloud;
 import hudson.slaves.NodeProvisioner;
 import hudson.util.ListBoxModel;
 import io.hainenber.jenkins.multipass.sdk.MultipassClient;
 import jakarta.annotation.Nonnull;
-import jenkins.model.Jenkins;
-import org.apache.commons.lang.RandomStringUtils;
-import org.apache.commons.lang.StringUtils;
-import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.DataBoundSetter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.util.*;
 import java.util.concurrent.Future;
+import jenkins.model.Jenkins;
+import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang.StringUtils;
+import org.kohsuke.stapler.AncestorInPath;
+import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.DataBoundSetter;
+import org.kohsuke.stapler.QueryParameter;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Root class that contains all configuration state about
@@ -54,7 +59,11 @@ public class MultipassCloud extends Cloud {
      */
     @DataBoundConstructor
     public MultipassCloud(String name) {
-        super(StringUtils.isNotBlank(name) ? name : String.format("multipass_cloud_%s", jenkinsController().clouds.size()));
+        super(
+                StringUtils.isNotBlank(name)
+                        ? name
+                        : String.format(
+                                "multipass_cloud_%s", jenkinsController().clouds.size()));
         LOGGER.info("[multipass-cloud] Initializing Cloud {}", this);
     }
 
@@ -79,7 +88,7 @@ public class MultipassCloud extends Cloud {
 
         LOGGER.info("[multipass-cloud]: Deleting all previous Multipass nodes...");
 
-        for (final Node node: nodes) {
+        for (final Node node : nodes) {
             if (node instanceof MultipassAgent) {
                 try {
                     ((MultipassAgent) node).terminate();
@@ -109,27 +118,27 @@ public class MultipassCloud extends Cloud {
 
         // Guard against non-matching labels
         if (label != null && !label.matches(List.of(new LabelAtom(getLabel())))) {
-           return nodeList;
+            return nodeList;
         }
 
         // Guard against double-provisioning with a 500ms cooldown check
         long timeDiff = System.currentTimeMillis() - lastProvisionTime;
         if (timeDiff < 500) {
-            LOGGER.info("[multipass-cloud] Provision of {} skipped, still on cooldown ({}ms of 500ms)",
+            LOGGER.info(
+                    "[multipass-cloud] Provision of {} skipped, still on cooldown ({}ms of 500ms)",
                     excessWorkload,
-                    timeDiff
-            );
+                    timeDiff);
             return nodeList;
         }
 
         String labelName = Objects.isNull(label) ? getLabel() : label.getDisplayName();
         long currentlyProvisioningInstanceCount = getCurrentlyProvisionedAgentCount();
         long numInstancesToLaunch = Math.max(excessWorkload - currentlyProvisioningInstanceCount, 0);
-        LOGGER.info("[multipass-cloud] Provisioning {} nodes for label '{}' ({} already provisioning)",
+        LOGGER.info(
+                "[multipass-cloud] Provisioning {} nodes for label '{}' ({} already provisioning)",
                 numInstancesToLaunch,
                 labelName,
-                currentlyProvisioningInstanceCount
-        );
+                currentlyProvisioningInstanceCount);
 
         // Initializing builder nodes and add to list of provisioned instances.
         for (int i = 0; i < numInstancesToLaunch; i++) {
@@ -140,6 +149,7 @@ public class MultipassCloud extends Cloud {
                 MultipassLauncher launcher = new MultipassLauncher(cloud);
                 try {
                     MultipassAgent agent = new MultipassAgent(cloud, displayName, launcher);
+                    agent.setLabelString(cloud.getLabel());
                     jenkinsController().addNode(agent);
                     return agent;
                 } catch (Descriptor.FormException | IOException e) {
@@ -160,8 +170,7 @@ public class MultipassCloud extends Cloud {
      * to Jenkins controller
      */
     private long getCurrentlyProvisionedAgentCount() {
-        return jenkinsController().getNodes()
-                .stream()
+        return jenkinsController().getNodes().stream()
                 .filter(MultipassAgent.class::isInstance)
                 .map(MultipassAgent.class::cast)
                 .filter(a -> a.getLauncher().isLaunchSupported())
