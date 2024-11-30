@@ -19,6 +19,9 @@
     <f:entry field="disk" title="${% Disk}">
         <f:textbox />
     </f:entry>
+    <f:entry field="sshCredentialsId" title="${%SSH Credentials ID}">
+        <f:select />
+    </f:entry>
     <f:entry field="cloudInitConfig" title="${% cloud-init.yaml}">
         <f:textarea />
     </f:entry>

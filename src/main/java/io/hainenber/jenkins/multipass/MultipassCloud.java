@@ -39,6 +39,7 @@ public class MultipassCloud extends Cloud {
     private String memory;
     private String disk;
     private String cloudInitConfig;
+    private String sshCredentialsId;
 
     private transient MultipassClient client;
     private transient long lastProvisionTime = 0;
@@ -255,6 +256,24 @@ public class MultipassCloud extends Cloud {
     }
 
     /**
+     * Getter for field <code>SSH credentials</code>.
+     * @return a @{link String} object.
+     */
+    @Nonnull
+    public String getSshCredentialsId() {
+        return this.sshCredentialsId;
+    }
+
+    /**
+     * Setter for the field <code>disk</code>
+     * @param sshCredentialsId a {@link String} object.
+     */
+    @DataBoundSetter
+    public void setSshCredentialsId(String sshCredentialsId) {
+        this.sshCredentialsId = sshCredentialsId;
+    }
+
+    /**
      * Getter for field <code>distroAlias</code>.
      * @return a @{link String} object.
      */
@@ -307,6 +326,24 @@ public class MultipassCloud extends Cloud {
             options.add("jammy");
             options.add("focal");
             return options;
+        }
+
+        public ListBoxModel doFillSshCredentialsIdItems(
+                @AncestorInPath ItemGroup context, @QueryParameter String credentialsId) {
+            AccessControlled securityContext =
+                    context instanceof AccessControlled ? (AccessControlled) context : jenkinsController();
+            // Not to fill any credentials if the current user lacks of required permissions.
+            if (!securityContext.hasPermission(Computer.CONFIGURE)) {
+                return new StandardUsernameListBoxModel().includeCurrentValue(credentialsId);
+            }
+            return new StandardUsernameListBoxModel()
+                    .includeMatchingAs(
+                            ACL.SYSTEM2,
+                            context,
+                            StandardUsernameCredentials.class,
+                            Collections.singletonList(new SchemeRequirement("ssh")),
+                            SSHAuthenticator.matcher(Connection.class))
+                    .includeCurrentValue(credentialsId);
         }
     }
 }
