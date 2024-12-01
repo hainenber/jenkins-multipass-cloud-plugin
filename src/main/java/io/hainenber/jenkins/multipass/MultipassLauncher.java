@@ -60,6 +60,7 @@ public class MultipassLauncher extends ComputerLauncher {
             throws IOException, InterruptedException {
         try {
             MultipassComputer computer = (MultipassComputer) slaveComputer;
+            computer.setCloud(cloud);
             launchScript(computer, listener);
         } catch (IOException e) {
             e.printStackTrace(listener.error(e.getMessage()));

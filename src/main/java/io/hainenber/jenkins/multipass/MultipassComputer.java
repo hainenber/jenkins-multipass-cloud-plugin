@@ -16,7 +16,7 @@ public class MultipassComputer extends AbstractCloudComputer<MultipassAgent> {
     private static final Logger LOGGER = LoggerFactory.getLogger(MultipassComputer.class);
 
     @Nonnull
-    private final MultipassCloud cloud;
+    private MultipassCloud cloud;
 
     /**
      * Constructor for MultipassComputer
@@ -25,6 +25,10 @@ public class MultipassComputer extends AbstractCloudComputer<MultipassAgent> {
     public MultipassComputer(MultipassAgent multipassAgent) {
         super(multipassAgent);
         this.cloud = multipassAgent.getCloud();
+    }
+
+    public void setCloud(@Nonnull MultipassCloud cloud) {
+        this.cloud = cloud;
     }
 
     @Override
