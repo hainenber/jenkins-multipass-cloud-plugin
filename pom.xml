@@ -42,7 +42,7 @@
 
     <!-- Versions for 3rd party libraries -->
     <commons.exec.version>1.4.0</commons.exec.version>
-    <jackson.databind.version>2.18.1</jackson.databind.version>
+    <jackson.databind.version>2.18.2</jackson.databind.version>
     <bouncycastle.version>1.79</bouncycastle.version>
 
     <!-- Disable generating injected tests from maven-hpi-plugin -->
