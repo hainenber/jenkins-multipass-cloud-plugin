@@ -48,11 +48,12 @@ public class MultipassInstance {
         this.releaseName = releaseName;
     }
 
+    @Nullable
     public String getImageHash() {
         return imageHash;
     }
 
-    public void setImageHash(String imageHash) {
+    public void setImageHash(@Nullable String imageHash) {
         this.imageHash = imageHash;
     }
 
@@ -94,7 +95,7 @@ public class MultipassInstance {
             int snapshots,
             List<String> ipv4,
             String releaseName,
-            String imageHash,
+            @Nullable String imageHash,
             int cpus) {
         this.name = name;
         this.state = state;

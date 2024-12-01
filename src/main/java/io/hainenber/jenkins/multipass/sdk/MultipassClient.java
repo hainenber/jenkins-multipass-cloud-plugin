@@ -8,7 +8,10 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import org.apache.commons.exec.CommandLine;
 import org.apache.commons.exec.DefaultExecutor;
 import org.apache.commons.exec.PumpStreamHandler;
@@ -16,6 +19,8 @@ import org.apache.commons.exec.PumpStreamHandler;
 public class MultipassClient {
     private final ObjectMapper objectMapper = new ObjectMapper();
     private final DefaultExecutor executor = DefaultExecutor.builder().get();
+
+    private transient List<String> availableDistroAliases;
 
     public String getOutput(CommandLine cmd) throws IOException {
         ByteArrayOutputStream stdout = new ByteArrayOutputStream();
@@ -27,10 +32,29 @@ public class MultipassClient {
         return stdout.toString();
     }
 
+    public List<String> getDistributionAlias() throws IOException {
+        if (Objects.nonNull(availableDistroAliases)) {
+            return availableDistroAliases;
+        }
+
+        CommandLine cmd = CommandLine.parse("multipass find");
+        cmd.addArguments(new String[] {"--format", "json"});
+        cmd.addArgument("--only-images");
+
+        var rawDistroAliases = getOutput(cmd);
+
+        Map<String, MultipassImage> images = objectMapper.readValue(
+                objectMapper.readTree(rawDistroAliases).get("images").toString(), new TypeReference<>() {});
+        availableDistroAliases = images.values().stream()
+                .map(i -> i.aliases.isEmpty() ? null : i.aliases.get(0))
+                .filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        return availableDistroAliases;
+    }
+
     public List<MultipassInstance> getInstances() throws IOException {
         CommandLine getCmd = CommandLine.parse("multipass list");
-        getCmd.addArgument("--format");
-        getCmd.addArgument("json");
+        getCmd.addArguments(new String[] {"--format", "json"});
 
         var instanceListString = getOutput(getCmd);
 

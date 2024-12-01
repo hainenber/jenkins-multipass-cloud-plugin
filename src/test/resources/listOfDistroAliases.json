@@ -1,0 +1,36 @@
+{
+  "blueprints": {
+  },
+  "errors": [
+  ],
+  "images": {
+    "20.04": {
+      "aliases": [
+        "focal"
+      ],
+      "os": "Ubuntu",
+      "release": "20.04 LTS",
+      "remote": "",
+      "version": "20241112"
+    },
+    "22.04": {
+      "aliases": [
+        "jammy"
+      ],
+      "os": "Ubuntu",
+      "release": "22.04 LTS",
+      "remote": "",
+      "version": "20241004"
+    },
+    "24.04": {
+      "aliases": [
+        "noble",
+        "lts"
+      ],
+      "os": "Ubuntu",
+      "release": "24.04 LTS",
+      "remote": "",
+      "version": "20241119"
+    }
+  }
+}

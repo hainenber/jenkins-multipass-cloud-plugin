@@ -7,18 +7,26 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.apache.commons.exec.CommandLine;
 import org.junit.jupiter.api.Test;
 
 class MultipassClientTest {
+    public String getMultipassCliFixture(String filename) throws IOException {
+        return Files.readString(Paths.get("src", "test", "resources", filename));
+    }
+
     @Test
-    public void givenStoppedAndRunningInstance_whenGetInstances_thenReturnListOfMultipassClient() throws IOException {
+    public void givenInstanceWithAllStatesFromMultipassCLI_whenGetInstances_thenReturnListOfMultipassClient()
+            throws IOException {
         var multipassClient = new MultipassClient();
         var spiedMultipassClient = spy(multipassClient);
 
         // Load fixture into spied method
-        var multipassListFixture = Files.readString(Paths.get("src", "test", "resources", "listOfInstances.json"));
-        doReturn(multipassListFixture).when(spiedMultipassClient).getOutput(any(CommandLine.class));
+        doReturn(getMultipassCliFixture("listOfInstances.json"))
+                .when(spiedMultipassClient)
+                .getOutput(any(CommandLine.class));
 
         var expected = List.of(
                 new MultipassInstance(
@@ -32,6 +40,22 @@ class MultipassClientTest {
                         null,
                         0));
         var actual = spiedMultipassClient.getInstances();
+        assertIterableEquals(expected, actual);
+    }
+
+    @Test
+    public void givenDistroAliasesFromMultipassCLI_whenGetDistroAliases_thenReturnListOfDistro() throws IOException {
+        var multipassClient = new MultipassClient();
+        var spiedMultipassClient = spy(multipassClient);
+
+        // Load fixture into spied method
+        doReturn(getMultipassCliFixture("listOfDistroAliases.json"))
+                .when(spiedMultipassClient)
+                .getOutput(any(CommandLine.class));
+
+        var expected = Stream.of("noble", "jammy", "focal").sorted().collect(Collectors.toList());
+        var actual =
+                spiedMultipassClient.getDistributionAlias().stream().sorted().collect(Collectors.toList());
         assertIterableEquals(expected, actual);
     }
 }

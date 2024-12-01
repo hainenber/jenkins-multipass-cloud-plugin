@@ -319,6 +319,13 @@ public class MultipassCloud extends Cloud {
     @Extension
     @SuppressWarnings("unused")
     public static class DescriptorImpl extends Descriptor<Cloud> {
+        private final MultipassClient client;
+
+        public DescriptorImpl() {
+            super();
+            this.client = new MultipassClient();
+        }
+
         @Nonnull
         @Override
         public String getDisplayName() {
@@ -326,14 +333,17 @@ public class MultipassCloud extends Cloud {
         }
 
         // Fill out supported Ubuntu distribution aliases
-        // 24.04 - noble (default)
-        // 22.04 - jammy
-        // 20.04 - focal
-        public ListBoxModel doFillDistroAliasItems() {
+        public ListBoxModel doFillDistroAliasItems() throws IOException {
             final ListBoxModel options = new ListBoxModel();
-            options.add(DEFAULT_AGENT_DISTRIBUTION_ALIAS);
-            options.add("jammy");
-            options.add("focal");
+
+            List<String> availableDistroAliases = client.getDistributionAlias();
+            if (availableDistroAliases.isEmpty()) {
+                options.add(DEFAULT_AGENT_DISTRIBUTION_ALIAS);
+            } else {
+                for (String availableDistroAlias : availableDistroAliases) {
+                    options.add(availableDistroAlias);
+                }
+            }
             return options;
         }
 

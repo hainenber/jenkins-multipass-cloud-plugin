@@ -67,7 +67,7 @@ public class MultipassLauncher extends ComputerLauncher {
                     "[multipass-cloud] Terminating Multipass agent {} due to problem launching or connecting to it.",
                     slaveComputer.getName());
             var multipassComputer = ((MultipassComputer) slaveComputer).getNode();
-            if (!Objects.isNull(multipassComputer)) {
+            if (Objects.nonNull(multipassComputer)) {
                 multipassComputer.terminate();
             }
         }
@@ -130,7 +130,8 @@ public class MultipassLauncher extends ComputerLauncher {
         }
     }
 
-    private Set<Callable<Boolean>> getCallables(MultipassComputer computer, TaskListener listener, Connection sshConnection) {
+    private Set<Callable<Boolean>> getCallables(
+            MultipassComputer computer, TaskListener listener, Connection sshConnection) {
         Set<Callable<Boolean>> callables = new HashSet<>();
         callables.add(() -> {
             // Accept widely used cryptographic algorithms.
