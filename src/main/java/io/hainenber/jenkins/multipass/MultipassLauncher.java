@@ -110,13 +110,14 @@ public class MultipassLauncher extends ComputerLauncher {
                         String.format("Launching SSH connection for %s node", computer.getName())));
                 Set<Callable<Boolean>> callables = getCallables(computer, listener, sshConnection);
 
+                LOGGER.info("[multipass-cloud] Waiting for agent '{}' to be connected", computer);
+
                 try {
                     launcherExecutorService.invokeAll(callables);
                 } catch (Throwable e) {
                     LOGGER.error("Launch failed due to %", e);
                 }
 
-                LOGGER.info("[multipass-cloud] Waiting for agent '{}' to be connected", computer);
             } catch (Exception e) {
                 LOGGER.error("[multipass-cloud] Exception when launching Multipass VM: {}", e.getMessage());
                 listener.fatalError("[multipass-cloud] Exception when launching Multipass VM: %s", e.getMessage());

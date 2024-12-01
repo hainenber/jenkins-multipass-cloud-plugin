@@ -116,6 +116,13 @@ public class MultipassCloud extends Cloud {
         var nodeList = new ArrayList<NodeProvisioner.PlannedNode>();
         Label label = cloudState.getLabel();
 
+        // Not provisioning nodes if Jenkins is getting terminated
+        if (jenkinsController().isQuietingDown()) {
+            LOGGER.info("Not provisioning Multipass node as Jenkins is shutting down");
+        } else if (jenkinsController().isTerminating()) {
+            LOGGER.info("Not provisioning Multipass node as Jenkins is getting terminated");
+        }
+
         // Guard against non-matching labels
         if (label != null && !label.matches(List.of(new LabelAtom(getLabel())))) {
             return nodeList;

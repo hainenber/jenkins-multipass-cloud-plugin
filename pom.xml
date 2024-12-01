@@ -35,7 +35,7 @@
     <changelist>-SNAPSHOT</changelist>
 
     <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
-    <jenkins.version>2.462.3</jenkins.version>
+    <jenkins.version>2.479.1</jenkins.version>
     <gitHubRepo>hainenber/jenkins-${project.artifactId}-plugin</gitHubRepo>
 
     <spotless.check.skip>false</spotless.check.skip>
@@ -154,7 +154,7 @@
       <plugin>
         <groupId>org.jenkins-ci.tools</groupId>
         <artifactId>maven-hpi-plugin</artifactId>
-        <version>3.57</version>
+        <version>3.59</version>
         <configuration>
           <disabledTestInjection>true</disabledTestInjection>
         </configuration>
