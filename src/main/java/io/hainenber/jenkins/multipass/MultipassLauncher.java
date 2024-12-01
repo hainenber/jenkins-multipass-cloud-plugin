@@ -19,13 +19,9 @@ import jakarta.annotation.Nonnull;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Paths;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
-import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -85,15 +81,21 @@ public class MultipassLauncher extends ComputerLauncher {
 
         synchronized (this) {
             try {
-                var instanceName = String.format("%s-%s", cloud.getName(), RandomStringUtils.randomAlphanumeric(4));
-                cloud.getMultipassClient()
-                        .createInstance(
-                                instanceName,
-                                cloud.getCloudInitConfig(),
-                                cloud.getCpu(),
-                                cloud.getMemory(),
-                                cloud.getDisk(),
-                                cloud.getDistroAlias());
+                var instanceName = computer.getDisplayName();
+                var multipassClient = cloud.getMultipassClient();
+
+                // Only create new Multipass VM when there's no VM with matching name identifier.
+                // If there's matched one, the launcher will launch its Computer abstraction.
+                var existingInstance = cloud.getMultipassClient().getInstance(instanceName);
+                if (existingInstance.isEmpty()) {
+                    multipassClient.createInstance(
+                            instanceName,
+                            cloud.getCloudInitConfig(),
+                            cloud.getCpu(),
+                            cloud.getMemory(),
+                            cloud.getDisk(),
+                            cloud.getDistroAlias());
+                }
 
                 // Establish SSH connection between controller and agent.
                 var instance = cloud.getMultipassClient().getInstance(instanceName);

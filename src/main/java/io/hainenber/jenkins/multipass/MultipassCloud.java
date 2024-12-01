@@ -149,13 +149,12 @@ public class MultipassCloud extends Cloud {
 
         // Initializing builder nodes and add to list of provisioned instances.
         for (int i = 0; i < numInstancesToLaunch; i++) {
-            final String suffix = RandomStringUtils.randomAlphabetic(4);
-            final String displayName = String.format("%s-multipass", suffix);
+            final String instanceName = String.format("%s-%s", getName(), RandomStringUtils.randomAlphanumeric(4));
             final MultipassCloud cloud = this;
             final Future<Node> nodeResolver = Computer.threadPoolForRemoting.submit(() -> {
                 MultipassLauncher launcher = new MultipassLauncher(cloud);
                 try {
-                    MultipassAgent agent = new MultipassAgent(cloud, displayName, launcher);
+                    MultipassAgent agent = new MultipassAgent(cloud, instanceName, launcher);
                     agent.setLabelString(cloud.getLabel());
                     jenkinsController().addNode(agent);
                     return agent;
@@ -164,7 +163,7 @@ public class MultipassCloud extends Cloud {
                     return null;
                 }
             });
-            nodeList.add(new NodeProvisioner.PlannedNode(displayName, nodeResolver, 1));
+            nodeList.add(new NodeProvisioner.PlannedNode(instanceName, nodeResolver, 1));
         }
 
         lastProvisionTime = System.currentTimeMillis();

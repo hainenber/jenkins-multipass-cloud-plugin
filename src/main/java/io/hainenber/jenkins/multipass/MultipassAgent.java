@@ -8,6 +8,7 @@ import hudson.slaves.ComputerLauncher;
 import io.hainenber.jenkins.multipass.sdk.MultipassClient;
 import jakarta.annotation.Nonnull;
 import java.io.IOException;
+import java.io.Serial;
 import java.util.Objects;
 import jenkins.model.Jenkins;
 import org.apache.commons.lang.StringUtils;
@@ -17,6 +18,8 @@ import org.slf4j.LoggerFactory;
 public class MultipassAgent extends AbstractCloudSlave {
     private static final Logger LOGGER = LoggerFactory.getLogger(MultipassAgent.class);
     private final transient MultipassCloud cloud;
+
+    @Serial
     private static final long serialVersionUID = 2553788927582449937L;
 
     /**
