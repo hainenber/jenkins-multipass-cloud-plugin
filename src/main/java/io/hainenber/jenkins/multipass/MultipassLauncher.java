@@ -89,7 +89,7 @@ public class MultipassLauncher extends ComputerLauncher {
 
                 // Only create new Multipass VM when there's no VM with matching name identifier.
                 // If there's matched one, the launcher will launch its Computer abstraction.
-                var existingInstance = cloud.getMultipassClient().getInstance(instanceName);
+                var existingInstance = multipassClient.getInstance(instanceName);
                 if (existingInstance.isEmpty()) {
                     multipassClient.createInstance(
                             instanceName,
@@ -101,7 +101,7 @@ public class MultipassLauncher extends ComputerLauncher {
                 }
 
                 // Establish SSH connection between controller and agent.
-                var instance = cloud.getMultipassClient().getInstance(instanceName);
+                var instance = multipassClient.getInstance(instanceName);
                 if (instance.isEmpty()) {
                     throw new RuntimeException("Cannot find the instance named " + instanceName);
                 }
