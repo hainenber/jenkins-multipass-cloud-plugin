@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout" xmlns:dd="/lib/layout/dropdowns" xmlns:f="/lib/form">
+        <j:if test="${it.hasPermission(it.PROVISION)}">
+                <j:set var="formId" value="${h.generateId()}"/>
+                <tr>
+                        <td />
+                        <td colspan="${monitors.size()+2}">
+                                <l:overflowButton icon="symbol-add"
+                                                  text="Provision via ${it.displayName}"
+                                                  tooltip="${null}"
+                                >
+                                        <dd:custom>
+                                                <button
+                                                        data-type="multipass-vm-provision"
+                                                        data-form="${formId}"
+                                                        data-url="${it.description}"
+                                                >
+                                                        Provision via ${it.displayName}
+                                                </button>
+                                        </dd:custom>
+                                </l:overflowButton>
+                                <f:form action="${rootURL}/${it.url}/provision" method="post" name="provision" id="${formId}">
+                                </f:form>
+                                <st:adjunct includes="io.hainenber.jenkins.multipass.MultipassCloud.provision"/>
+                        </td>
+                </tr>
+        </j:if>
+
+</j:jelly>

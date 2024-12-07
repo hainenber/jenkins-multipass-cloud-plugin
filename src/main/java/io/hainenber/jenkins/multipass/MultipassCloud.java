@@ -1,5 +1,8 @@
 package io.hainenber.jenkins.multipass;
 
+import static jakarta.servlet.http.HttpServletResponse.SC_BAD_REQUEST;
+import static jakarta.servlet.http.HttpServletResponse.SC_INTERNAL_SERVER_ERROR;
+
 import com.cloudbees.jenkins.plugins.sshcredentials.SSHAuthenticator;
 import com.cloudbees.plugins.credentials.common.StandardUsernameCredentials;
 import com.cloudbees.plugins.credentials.common.StandardUsernameListBoxModel;
@@ -21,6 +24,7 @@ import io.hainenber.jenkins.multipass.sdk.MultipassClient;
 import jakarta.annotation.Nonnull;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -32,7 +36,10 @@ import org.apache.commons.lang.StringUtils;
 import org.kohsuke.stapler.AncestorInPath;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
+import org.kohsuke.stapler.HttpResponse;
+import org.kohsuke.stapler.HttpResponses;
 import org.kohsuke.stapler.QueryParameter;
+import org.kohsuke.stapler.interceptor.RequirePOST;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -157,7 +164,7 @@ public class MultipassCloud extends Cloud {
 
         // Initializing builder nodes and add to list of provisioned instances.
         for (int i = 0; i < numInstancesToLaunch; i++) {
-            final String instanceName = String.format("%s-%s", getName(), RandomStringUtils.randomAlphanumeric(4));
+            final String instanceName = createInstanceName();
             final MultipassCloud cloud = this;
             final Future<Node> nodeResolver = Computer.threadPoolForRemoting.submit(() -> {
                 MultipassLauncher launcher = new MultipassLauncher(cloud);
@@ -377,6 +384,46 @@ public class MultipassCloud extends Cloud {
                             Collections.singletonList(new SchemeRequirement("ssh")),
                             SSHAuthenticator.matcher(Connection.class))
                     .includeCurrentValue(credentialsId);
+        }
+    }
+
+    /**
+     * Create a Multipass VM name with random alphanumeric suffix.
+     * @return a {@link String} for a Multipass VM
+     */
+    private String createInstanceName() {
+        return String.format("%s-%s", getName(), RandomStringUtils.randomAlphanumeric(4));
+    }
+
+    /**
+     * Allow creating Multipass VM-based Jenkins agents manually, from "Nodes" page .
+     */
+    @RequirePOST
+    @SuppressWarnings("unused")
+    public HttpResponse doProvision() {
+        checkPermission(PROVISION);
+
+        if (jenkinsController().isQuietingDown()) {
+            throw HttpResponses.error(SC_BAD_REQUEST, "Jenkins controller is quieting down");
+        }
+        if (jenkinsController().isTerminating()) {
+            throw HttpResponses.error(SC_BAD_REQUEST, "Jenkins controller is terminating");
+        }
+
+        try {
+            var nodes = provision(
+                    new CloudState(new LabelAtom(getLabel()), 1), (int) (getCurrentlyProvisionedAgentCount() + 1));
+            var manuallyProvisionedAgent = Arrays.stream(nodes.toArray(NodeProvisioner.PlannedNode[]::new))
+                    .findFirst();
+            if (manuallyProvisionedAgent.isEmpty()) {
+                throw HttpResponses.error(
+                        SC_INTERNAL_SERVER_ERROR,
+                        "multipass-cloud-plugin cannot provision on-demand agent as requested");
+            }
+            var manuallyProvisionedAgentName = manuallyProvisionedAgent.get().displayName;
+            return HttpResponses.redirectViaContextPath(String.format("/computer/%s", manuallyProvisionedAgentName));
+        } catch (Exception e) {
+            throw HttpResponses.error(SC_INTERNAL_SERVER_ERROR, e);
         }
     }
 }
