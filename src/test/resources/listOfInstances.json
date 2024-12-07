@@ -1,8 +1,7 @@
 {
   "list": [
     {
-      "ipv4": [
-      ],
+      "ipv4": [],
       "name": "java-app-builder-1",
       "release": "Ubuntu 24.04 LTS",
       "state": "Stopped"
