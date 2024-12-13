@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 public class MultipassAgent extends AbstractCloudSlave {
     private static final Logger LOGGER = LoggerFactory.getLogger(MultipassAgent.class);
     private final transient MultipassCloud cloud;
+    private final MultipassAgentTemplate template;
 
     @Serial
     private static final long serialVersionUID = 2553788927582449937L;
@@ -27,14 +28,20 @@ public class MultipassAgent extends AbstractCloudSlave {
      * @param cloud a {@link MultipassCloud} object;
      * @param name     the name of the agent.
      * @param launcher a {@link hudson.slaves.ComputerLauncher} object.
+     * @param template a {@link MultipassAgentTemplate} object.
      * @throws hudson.model.Descriptor.FormException if any.
      * @throws java.io.IOException                   if any.
      */
-    public MultipassAgent(MultipassCloud cloud, @Nonnull String name, @Nonnull ComputerLauncher launcher)
+    public MultipassAgent(
+            MultipassCloud cloud,
+            @Nonnull String name,
+            @Nonnull ComputerLauncher launcher,
+            @Nonnull MultipassAgentTemplate template)
             throws Descriptor.FormException, IOException {
         // TODO: remove this hardcoded value.
         super(name, "/home/jenkins", launcher);
         this.cloud = cloud;
+        this.template = template;
     }
 
     /**
@@ -43,6 +50,14 @@ public class MultipassAgent extends AbstractCloudSlave {
      */
     public MultipassCloud getCloud() {
         return cloud;
+    }
+
+    /**
+     * Get cloud instance associated with this builder agent.
+     * @return a {@link MultipassAgentTemplate} object.
+     */
+    public MultipassAgentTemplate getTemplate() {
+        return template;
     }
 
     /**

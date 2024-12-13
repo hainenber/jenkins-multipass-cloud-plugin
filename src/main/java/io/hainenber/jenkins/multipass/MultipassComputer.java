@@ -18,6 +18,9 @@ public class MultipassComputer extends AbstractCloudComputer<MultipassAgent> {
     @Nonnull
     private MultipassCloud cloud;
 
+    @Nonnull
+    private final MultipassAgentTemplate template;
+
     /**
      * Constructor for MultipassComputer
      * @param multipassAgent a {@link MultipassAgent} object.
@@ -25,10 +28,15 @@ public class MultipassComputer extends AbstractCloudComputer<MultipassAgent> {
     public MultipassComputer(MultipassAgent multipassAgent) {
         super(multipassAgent);
         this.cloud = multipassAgent.getCloud();
+        this.template = multipassAgent.getTemplate();
     }
 
     public void setCloud(@Nonnull MultipassCloud cloud) {
         this.cloud = cloud;
+    }
+
+    public MultipassAgentTemplate getOriginTemplate() {
+        return template;
     }
 
     @Override

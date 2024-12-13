@@ -80,12 +80,21 @@ public class MultipassLauncher extends ComputerLauncher {
             return;
         }
 
+        // Find matching template by name for the computer.
+        var matchingTemplates =
+                cloud.getTemplatesByName(computer.getOriginTemplate().getName());
+        if (matchingTemplates.isEmpty()) {
+            LOGGER.info("[multipass-cloud] No matching template for {}", computer.getDisplayName());
+            return;
+        }
+
         LOGGER.info("[multipass-cloud] Creating new Multipass VM {} with {}", computer, listener);
 
         synchronized (this) {
             try {
                 var instanceName = computer.getDisplayName();
                 var multipassClient = cloud.getMultipassClient();
+                var matchingTemplate = matchingTemplates.get(0);
 
                 // Only create new Multipass VM when there's no VM with matching name identifier.
                 // If there's matched one, the launcher will launch its Computer abstraction.
@@ -93,11 +102,11 @@ public class MultipassLauncher extends ComputerLauncher {
                 if (existingInstance.isEmpty()) {
                     multipassClient.createInstance(
                             instanceName,
-                            cloud.getCloudInitConfig(),
-                            cloud.getCpu(),
-                            cloud.getMemory(),
-                            cloud.getDisk(),
-                            cloud.getDistroAlias());
+                            matchingTemplate.getCloudInitConfig(),
+                            matchingTemplate.getCpu(),
+                            matchingTemplate.getMemory(),
+                            matchingTemplate.getDisk(),
+                            matchingTemplate.getDistroAlias());
                 }
 
                 // Establish SSH connection between controller and agent.
@@ -114,7 +123,7 @@ public class MultipassLauncher extends ComputerLauncher {
                 var launcherExecutorService = Executors.newSingleThreadExecutor(new NamingThreadFactory(
                         Executors.defaultThreadFactory(),
                         String.format("Launching SSH connection for %s node", computer.getName())));
-                Set<Callable<Boolean>> callables = getCallables(computer, listener, sshConnection);
+                Set<Callable<Boolean>> callables = getCallables(computer, listener, sshConnection, matchingTemplate);
 
                 LOGGER.info("[multipass-cloud] Waiting for agent '{}' to be connected", computer);
 
@@ -127,7 +136,6 @@ public class MultipassLauncher extends ComputerLauncher {
             } catch (Exception e) {
                 LOGGER.error("[multipass-cloud] Exception when launching Multipass VM: {}", e.getMessage());
                 listener.fatalError("[multipass-cloud] Exception when launching Multipass VM: %s", e.getMessage());
-
                 try {
                     MultipassCloud.jenkinsController().removeNode(node);
                 } catch (IOException e1) {
@@ -138,7 +146,10 @@ public class MultipassLauncher extends ComputerLauncher {
     }
 
     private Set<Callable<Boolean>> getCallables(
-            MultipassComputer computer, TaskListener listener, Connection sshConnection) {
+            MultipassComputer computer,
+            TaskListener listener,
+            Connection sshConnection,
+            MultipassAgentTemplate template) {
         Set<Callable<Boolean>> callables = new HashSet<>();
         callables.add(() -> {
             // Accept widely used cryptographic algorithms.
@@ -147,12 +158,12 @@ public class MultipassLauncher extends ComputerLauncher {
             });
 
             // Connect and authenticate.
-            sshConnectToAgent(computer, listener, sshConnection);
+            sshConnectToAgent(computer, listener, sshConnection, template);
 
             // Display SSH connection activities onto agent's console log.
             sshConnection.exec("set", listener.getLogger());
 
-            var agentRemoteFs = computer.getNode().getRemoteFS();
+            var agentRemoteFs = Objects.requireNonNull(computer.getNode()).getRemoteFS();
 
             // Move the necessary remoting.jar so that
             copyRemotingJarToAgent(listener, agentRemoteFs, sshConnection);
@@ -201,7 +212,11 @@ public class MultipassLauncher extends ComputerLauncher {
         }
     }
 
-    private void sshConnectToAgent(MultipassComputer computer, TaskListener listener, Connection sshConnection)
+    private void sshConnectToAgent(
+            MultipassComputer computer,
+            TaskListener listener,
+            Connection sshConnection,
+            MultipassAgentTemplate template)
             throws Exception {
         int agentConnectTimeout = 10_000; // 10 seconds
 
@@ -225,7 +240,7 @@ public class MultipassLauncher extends ComputerLauncher {
                 LOGGER.info("[multipass-cloud] Established SSH connection with host {}", hostName);
 
                 // Authenticate
-                StandardUsernameCredentials credentials = getSshCredentialsId(cloud.getSshCredentialsId());
+                StandardUsernameCredentials credentials = getSshCredentialsId(template.getSshCredentialsId());
                 if (SSHAuthenticator.newInstance(sshConnection, credentials).authenticate(listener)
                         && sshConnection.isAuthenticationComplete()) {
                     LOGGER.info(

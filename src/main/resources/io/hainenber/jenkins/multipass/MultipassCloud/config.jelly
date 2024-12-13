@@ -1,28 +1,12 @@
 <?jelly escape-by-default='true'?>
 
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-    <f:entry field="name" title="${%Name}">
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:f="/lib/form">
+    <f:entry title="${%Name}" field="name">
         <f:textbox />
     </f:entry>
-    <f:entry field="label" title="${%Label}">
-        <f:textbox />
-    </f:entry>
-    <f:entry field="distroAlias" title="${%Distribution Alias}">
-        <f:select />
-    </f:entry>
-    <f:entry field="cpu" title="${% CPUs}">
-        <f:textbox />
-    </f:entry>
-    <f:entry field="memory" title="${% Memory}">
-        <f:textbox />
-    </f:entry>
-    <f:entry field="disk" title="${% Disk}">
-        <f:textbox />
-    </f:entry>
-    <f:entry field="sshCredentialsId" title="${%SSH Credentials ID}">
-        <f:select />
-    </f:entry>
-    <f:entry field="cloudInitConfig" title="${% cloud-init.yaml}">
-        <f:textarea />
+    <f:entry title="Agent templates" description="${%List of agent template to launch Multipass VMs as Jenkins agents}">
+        <f:repeatable field="templates">
+            <st:include page="config.jelly" class="${descriptor.clazz}" />
+        </f:repeatable>
     </f:entry>
 </j:jelly>

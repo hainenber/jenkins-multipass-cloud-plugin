@@ -1,0 +1,29 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:f="/lib/form" xmlns:mp="/lib/multipass" >
+    <mp:blockWrapper>
+        <f:entry field="name" title="${%Name}">
+            <f:textbox />
+        </f:entry>
+        <f:entry field="labels" title="${%Label}">
+            <f:textbox />
+        </f:entry>
+        <f:entry field="distroAlias" title="${%Distribution Alias}">
+            <f:select />
+        </f:entry>
+        <f:entry field="cpu" title="${% CPUs}">
+            <f:textbox />
+        </f:entry>
+        <f:entry field="memory" title="${% Memory}">
+            <f:textbox />
+        </f:entry>
+        <f:entry field="disk" title="${% Disk}">
+            <f:textbox />
+        </f:entry>
+        <f:entry field="sshCredentialsId" title="${%SSH Credentials ID}">
+            <f:select />
+        </f:entry>
+        <f:entry field="cloudInitConfig" title="${% cloud-init.yaml}">
+            <f:textarea />
+        </f:entry>
+    </mp:blockWrapper>
+</j:jelly>
