@@ -35,7 +35,7 @@
     <changelist>-SNAPSHOT</changelist>
 
     <!-- https://www.jenkins.io/doc/developer/plugin-development/choosing-jenkins-baseline/ -->
-    <jenkins.version>2.479.1</jenkins.version>
+    <jenkins.version>2.479.2</jenkins.version>
     <gitHubRepo>hainenber/jenkins-${project.artifactId}-plugin</gitHubRepo>
 
     <spotless.check.skip>false</spotless.check.skip>
@@ -47,6 +47,9 @@
 
     <!-- Disable generating injected tests from maven-hpi-plugin -->
     <disableTestInjection>false</disableTestInjection>
+
+    <!-- Configuration-as-Code support -->
+    <configuration-as-code.version>1903.v004d55388f30</configuration-as-code.version>
   </properties>
 
   <dependencyManagement>
@@ -107,6 +110,20 @@
       <artifactId>trilead-api</artifactId>
     </dependency>
 
+    <!-- Testing Jenkins Configuration-as-Code plugin support -->
+    <dependency>
+      <groupId>io.jenkins</groupId>
+      <artifactId>configuration-as-code</artifactId>
+      <version>${configuration-as-code.version}</version>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>io.jenkins.configuration-as-code</groupId>
+      <artifactId>test-harness</artifactId>
+      <version>${configuration-as-code.version}</version>
+      <scope>test</scope>
+    </dependency>
+
     <!-- Test -->
     <dependency>
       <groupId>org.jenkins-ci.plugins.workflow</groupId>
@@ -133,6 +150,7 @@
       <artifactId>mockito-core</artifactId>
       <scope>test</scope>
     </dependency>
+
   </dependencies>
 
   <repositories>

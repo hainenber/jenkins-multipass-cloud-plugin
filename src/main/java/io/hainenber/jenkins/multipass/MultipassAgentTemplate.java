@@ -31,7 +31,8 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.QueryParameter;
 
-public class MultipassAgentTemplate extends AbstractDescribableImpl<MultipassAgentTemplate> implements Saveable, Serializable {
+public class MultipassAgentTemplate extends AbstractDescribableImpl<MultipassAgentTemplate>
+        implements Saveable, Serializable {
     private static final String DEFAULT_AGENT_DISTRIBUTION_ALIAS = "noble";
 
     @Serial

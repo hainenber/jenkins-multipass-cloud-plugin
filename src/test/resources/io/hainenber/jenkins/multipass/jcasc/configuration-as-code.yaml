@@ -1,0 +1,138 @@
+jenkins:
+  clouds:
+    - multipass:
+        name: "multipass"
+        templates:
+          - name: java-app-builder
+            label: "java"
+            cpu: 1
+            memory: 1G
+            disk: 10G
+            sshCredentialsId: test-ssh
+            cloudInitConfig: |
+              #cloud-config
+
+              users:
+                - default
+                - name: jenkins
+                  primary_group: users
+                  shell: /bin/bash
+                  lock_passwd: true
+                  ssh_authorized_keys:
+                    - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDBcqtJZZ4fWGnnxAWQ2BTmyEhKZvTyFqcO5FhnwNRg/yaeA+GVb7G5uRxmjxq7fGtQgvERb1CIo4Kwk9k+STXX1zS1NZQ3fmBkbRJaOkrP2VuqJT4sh4nV4Uf7mSEhU35wGsED3i/VsrZdT8osTAaDccYEORhs+r0MVOcVb5Wt0CJVydhqeEbzHwHL6fbiYxYbyu+hz8zuDwLcs3CyWNjlGB47xp5XfADIrXG8SXdKDgb4lmmrGD/du858buZeDcT07XKFjcwiJsRVxUBcSZWgvMmNrtwWHtRpKh7Q9b9EjdDOynaQxyzElp9KQiE9x1ZkbeRk6fYyFhFfHMBjm6nAtXKWv0EB/+5/ChpS2a9Y0LrYO7dq0jA+/zyTpUDVcQJY4WSal196j7bhghdMtPz73HtIvjwkTWsU2CpHpl21JdfehtUVr09FodUW0tdRJ09lA7mImsL5jHodTkxNAVkye3j3dw/Yk3S3N8b1rczyzOuDGnGRB+UOdP17pJEizLIwGtrUccAH4khVql/heVHiyxKCSjDg2UsmFC9OCDEWvfA0vErjf7fgumh6MLBIrAEMqtzs9D9Y4+zNdaCIRK2Adk2YUuuPJjfbs6lCEcBvkGt37r+flJ5Bzv6AxbO9E2sG4U03fWaabjxYefURSOGL9YJldWMvu6ruZ9pMB0xO7w== dotronghai@192.168.1.4
+
+              package_update: true
+              package_upgrade: true
+              packages:
+                - git
+                - openjdk-21-jre-headless
+                - openjdk-21-jdk-headless
+                - maven
+
+              # Prevent modified /etc/app/sources.list got overwritten.
+              apt:
+                preserve_sources_list: true
+
+              # Use self-host Sonatype Nexus as apt proxy.
+              bootcmd:
+                - echo $(ip route | grep -e "^default" | cut -f3 -d" ") > /etc/OUTER_HOST_IP_ADDRESS.conf
+                - echo "deb http://$(cat /etc/OUTER_HOST_IP_ADDRESS.conf):8081/repository/apt-proxy noble main universe multiverse" >> /etc/apt/sources.list
+                - echo "deb http://$(cat /etc/OUTER_HOST_IP_ADDRESS.conf):8081/repository/apt-proxy noble-updates main universe multiverse" >> /etc/apt/sources.list
+
+              # Write a Maven user-specific settings file with template for Maven mirror.
+              # The OUTER_HOST_IP_ADDRESS string will be replaced with actual host in `runcmd` section.
+              write_files:
+                - path: /home/jenkins/.m2/settings.xml
+                  content: |
+                    <settings>
+                      <mirrors>
+                        <mirror>
+                      <!--This sends everything else to /public -->
+                        <id>central</id>
+                        <mirrorOf>central</mirrorOf>
+                        <url>http://OUTER_HOST_IP_ADDRESS:8081/repository/maven-public/</url>
+                      </mirror>
+                        <mirror>
+                        <!--This sends everything else to /public -->
+                        <id>jenkins-public</id>
+                        <mirrorOf>jenkins-public</mirrorOf>
+                        <url>http://OUTER_HOST_IP_ADDRESS:8081/repository/jenkins-public/</url>
+                      </mirror>
+                      </mirrors>
+                      <profiles>
+                        <profile>
+                        <id>nexus</id>
+                        <!--Enable snapshots for the built in central repo to direct -->
+                        <!--all requests to nexus via the mirror -->
+                        <repositories>
+                      <repository>
+                      <id>central</id>
+                      <url>http://central</url>
+                      <releases><enabled>true</enabled></releases>
+                      <snapshots><enabled>true</enabled></snapshots>
+                      </repository>
+                        </repositories>
+                        <pluginRepositories>
+                      <pluginRepository>
+                      <id>central</id>
+                      <url>http://central</url>
+                      <releases><enabled>true</enabled></releases>
+                      <snapshots><enabled>true</enabled></snapshots>
+                      </pluginRepository>
+                        </pluginRepositories>
+                        </profile>
+                      </profiles>
+                      <activeProfiles>
+                        <!--make the profile active all the time -->
+                        <activeProfile>nexus</activeProfile>
+                      <activeProfiles>
+                    </settings>
+                  owner: jenkins:users
+                  permissions: "0644"
+                  encoding: text/plain
+                  defer: true
+
+              # Substitute the variable with actual apt mirror URL
+              runcmd:
+                - sed -i.bak "s/OUTER_HOST_IP_ADDRESS/$(cat /etc/OUTER_HOST_IP_ADDRESS.conf)/g" /home/jenkins/.m2/settings.xml
+          - name: javascript-app-builder
+            label: "javascript"
+            cpu: 1
+            memory: 1G
+            disk: 10G
+            sshCredentialsId: test-ssh
+            cloudInitConfig: |
+              #cloud-config
+
+              users:
+                - default
+                - name: jenkins
+                  primary_group: users
+                  shell: /bin/bash
+                  lock_passwd: true
+                  ssh_authorized_keys:
+                    - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDBcqtJZZ4fWGnnxAWQ2BTmyEhKZvTyFqcO5FhnwNRg/yaeA+GVb7G5uRxmjxq7fGtQgvERb1CIo4Kwk9k+STXX1zS1NZQ3fmBkbRJaOkrP2VuqJT4sh4nV4Uf7mSEhU35wGsED3i/VsrZdT8osTAaDccYEORhs+r0MVOcVb5Wt0CJVydhqeEbzHwHL6fbiYxYbyu+hz8zuDwLcs3CyWNjlGB47xp5XfADIrXG8SXdKDgb4lmmrGD/du858buZeDcT07XKFjcwiJsRVxUBcSZWgvMmNrtwWHtRpKh7Q9b9EjdDOynaQxyzElp9KQiE9x1ZkbeRk6fYyFhFfHMBjm6nAtXKWv0EB/+5/ChpS2a9Y0LrYO7dq0jA+/zyTpUDVcQJY4WSal196j7bhghdMtPz73HtIvjwkTWsU2CpHpl21JdfehtUVr09FodUW0tdRJ09lA7mImsL5jHodTkxNAVkye3j3dw/Yk3S3N8b1rczyzOuDGnGRB+UOdP17pJEizLIwGtrUccAH4khVql/heVHiyxKCSjDg2UsmFC9OCDEWvfA0vErjf7fgumh6MLBIrAEMqtzs9D9Y4+zNdaCIRK2Adk2YUuuPJjfbs6lCEcBvkGt37r+flJ5Bzv6AxbO9E2sG4U03fWaabjxYefURSOGL9YJldWMvu6ruZ9pMB0xO7w== dotronghai@192.168.1.4
+
+              package_update: true
+              package_upgrade: true
+              packages:
+                - git
+                - openjdk-21-jre-headless
+                - openjdk-21-jdk-headless
+                - nodejs
+                - npm
+
+              # Prevent modified /etc/app/sources.list got overwritten.
+              apt:
+                preserve_sources_list: true
+
+              # Use self-host Sonatype Nexus as apt proxy.
+              bootcmd:
+                - echo $(ip route | grep -e "^default" | cut -f3 -d" ") > /etc/OUTER_HOST_IP_ADDRESS.conf
+                - echo "deb http://$(cat /etc/OUTER_HOST_IP_ADDRESS.conf):8081/repository/apt-proxy noble main universe multiverse" >> /etc/apt/sources.list
+                - echo "deb http://$(cat /etc/OUTER_HOST_IP_ADDRESS.conf):8081/repository/apt-proxy noble-updates main universe multiverse" >> /etc/apt/sources.list
+
+              # Configure to use self-hosted Sonatype Nexus as npm mirror.
+              runcmd:
+                - npm config set -g registry http://$(cat /etc/OUTER_HOST_IP_ADDRESS.conf):8081/repository/npm-proxy
+                - npm config set -g audit false
