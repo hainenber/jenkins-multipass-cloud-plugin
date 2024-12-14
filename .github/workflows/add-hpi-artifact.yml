@@ -1,0 +1,33 @@
+on:
+  push:
+    tags:
+      - "*.*.*"
+
+jobs:
+  add-hpi-artifact:
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@v4
+        with:
+            java-version: '17'
+            distribution: 'temurin'
+            cache: maven
+
+      - name: Run unit test
+        run: ./mvnw test
+
+      - name: Build .hpi distribution for Multipass Cloud Plugin
+        run: ./mvnw compile && ./mvnw hpi:hpi
+
+      - name: Add .hpi artifact to release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            target/multipass-cloud.hpi
