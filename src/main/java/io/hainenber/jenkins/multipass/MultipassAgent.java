@@ -12,16 +12,21 @@ import java.io.Serial;
 import java.util.Objects;
 import jenkins.model.Jenkins;
 import org.apache.commons.lang.StringUtils;
+import org.jenkinsci.plugins.cloudstats.ProvisioningActivity;
+import org.jenkinsci.plugins.cloudstats.TrackedItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MultipassAgent extends AbstractCloudSlave {
+public class MultipassAgent extends AbstractCloudSlave implements TrackedItem {
     private static final Logger LOGGER = LoggerFactory.getLogger(MultipassAgent.class);
-    private final transient MultipassCloud cloud;
+    private final MultipassCloud cloud;
     private final MultipassAgentTemplate template;
 
     @Serial
     private static final long serialVersionUID = 2553788927582449937L;
+
+    @Nonnull
+    private final ProvisioningActivity.Id id;
 
     /**
      * Constructor
@@ -42,6 +47,7 @@ public class MultipassAgent extends AbstractCloudSlave {
         super(name, "/home/jenkins", launcher);
         this.cloud = cloud;
         this.template = template;
+        this.id = new ProvisioningActivity.Id(cloud.getName(), template.getName(), name);
     }
 
     /**
@@ -91,5 +97,11 @@ public class MultipassAgent extends AbstractCloudSlave {
                 LOGGER.warn("[multipass-cloud]: Failed to terminate Multipass instance named '{}'", instanceName);
             }
         }
+    }
+
+    @Nonnull
+    @Override
+    public ProvisioningActivity.Id getId() {
+        return id;
     }
 }
