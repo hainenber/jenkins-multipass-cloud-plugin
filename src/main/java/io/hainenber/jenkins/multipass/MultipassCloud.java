@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicReference;
-
 import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.RandomStringUtils;
@@ -160,7 +159,7 @@ public class MultipassCloud extends Cloud {
                     }
                 });
 
-                if (provisioningId.get() == null)  {
+                if (provisioningId.get() == null) {
                     provisioningId.set(new ProvisioningActivity.Id(cloud.getName(), t.getName()));
                 }
 
