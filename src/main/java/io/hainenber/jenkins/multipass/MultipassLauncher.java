@@ -67,7 +67,7 @@ public class MultipassLauncher extends ComputerLauncher {
                     "[multipass-cloud] Terminating Multipass agent {} due to problem launching or connecting to it.",
                     slaveComputer.getName());
             var multipassComputer = ((MultipassComputer) slaveComputer).getNode();
-            if (Objects.nonNull(multipassComputer)) {
+            if (multipassComputer != null) {
                 multipassComputer.terminate();
             }
         }
@@ -75,7 +75,7 @@ public class MultipassLauncher extends ComputerLauncher {
 
     protected void launchScript(MultipassComputer computer, TaskListener listener) throws IOException {
         Node node = computer.getNode();
-        if (Objects.isNull(node)) {
+        if (node == null) {
             LOGGER.info("[multipass-cloud] Not launching {} since it is missing a node.", computer);
             return;
         }
@@ -115,7 +115,7 @@ public class MultipassLauncher extends ComputerLauncher {
                     throw new RuntimeException("Cannot find the instance named " + instanceName);
                 }
                 var instanceHostIp = instance.get().getIpv4();
-                if (Objects.isNull(instanceHostIp)) {
+                if (instanceHostIp == null) {
                     throw new RuntimeException("Cannot find the instance named " + instanceName);
                 }
                 var sshConnection = new Connection(instanceHostIp.get(0), computer.getSshPort());

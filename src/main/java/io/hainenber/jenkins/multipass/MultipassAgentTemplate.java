@@ -23,7 +23,6 @@ import java.io.Serial;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import jenkins.model.Jenkins;
 import org.kohsuke.stapler.AncestorInPath;
@@ -58,7 +57,7 @@ public class MultipassAgentTemplate extends AbstractDescribableImpl<MultipassAge
             String label,
             String name) {
         Jenkins jenkins = Jenkins.getInstanceOrNull();
-        if (Objects.nonNull(jenkins)) {
+        if (jenkins != null) {
             jenkins.checkPermission(Jenkins.ADMINISTER);
         }
 
@@ -165,7 +164,7 @@ public class MultipassAgentTemplate extends AbstractDescribableImpl<MultipassAge
      * @return a @{link String} object.
      */
     public String getDistroAlias() {
-        return Objects.isNull(distroAlias) ? DEFAULT_AGENT_DISTRIBUTION_ALIAS : distroAlias;
+        return distroAlias == null ? DEFAULT_AGENT_DISTRIBUTION_ALIAS : distroAlias;
     }
 
     /**

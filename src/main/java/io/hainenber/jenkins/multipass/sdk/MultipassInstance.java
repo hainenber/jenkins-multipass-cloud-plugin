@@ -33,7 +33,7 @@ public class MultipassInstance {
 
     @Nullable
     public List<String> getIpv4() {
-        return Objects.isNull(ipv4) ? new ArrayList<>() : ipv4;
+        return ipv4 == null ? new ArrayList<>() : ipv4;
     }
 
     public void setIpv4(@Nullable List<String> ipv4) {

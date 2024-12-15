@@ -63,22 +63,22 @@ public class MultipassCloud extends Cloud {
                         ? name
                         : String.format(
                                 "multipass_cloud_%s", jenkinsController().clouds.size()));
-        this.templates = Objects.isNull(templates) ? Collections.emptyList() : templates;
+        this.templates = templates == null ? Collections.emptyList() : templates;
         LOGGER.info("[multipass-cloud] Initializing Cloud {}", this);
     }
 
     public List<MultipassAgentTemplate> getTemplatesByLabel(Label label) {
-        return Objects.nonNull(this.templates)
+        return this.templates != null
                 ? this.templates.stream()
-                        .filter(t -> Objects.nonNull(t) && label.matches(t.getLabelSet()))
+                        .filter(t -> t != null && label.matches(t.getLabelSet()))
                         .toList()
                 : Collections.emptyList();
     }
 
     public List<MultipassAgentTemplate> getTemplatesByName(String templateName) {
-        return Objects.nonNull(this.templates)
+        return this.templates != null
                 ? this.templates.stream()
-                        .filter(t -> Objects.nonNull(t) && t.getName().equals(templateName))
+                        .filter(t -> t != null && t.getName().equals(templateName))
                         .toList()
                 : Collections.emptyList();
     }
@@ -131,7 +131,7 @@ public class MultipassCloud extends Cloud {
         }
 
         for (MultipassAgentTemplate t : matchingTemplates) {
-            String labelName = Objects.isNull(label) ? t.getLabels() : label.getDisplayName();
+            String labelName = label == null ? t.getLabels() : label.getDisplayName();
             long currentlyProvisioningInstanceCount = getCurrentlyProvisionedAgentCount();
             long numInstancesToLaunch = Math.max(excessWorkload - currentlyProvisioningInstanceCount, 0);
             LOGGER.info(
