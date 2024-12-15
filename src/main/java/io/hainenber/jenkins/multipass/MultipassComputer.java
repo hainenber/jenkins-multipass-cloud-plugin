@@ -8,11 +8,14 @@ import jakarta.annotation.Nonnull;
 import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.concurrent.Future;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.time.DurationFormatUtils;
+import org.jenkinsci.plugins.cloudstats.ProvisioningActivity;
+import org.jenkinsci.plugins.cloudstats.TrackedItem;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MultipassComputer extends AbstractCloudComputer<MultipassAgent> {
+public class MultipassComputer extends AbstractCloudComputer<MultipassAgent> implements TrackedItem {
     private static final Logger LOGGER = LoggerFactory.getLogger(MultipassComputer.class);
 
     @Nonnull
@@ -97,5 +100,12 @@ public class MultipassComputer extends AbstractCloudComputer<MultipassAgent> {
         });
 
         next.notify();
+    }
+
+    @Nullable
+    @Override
+    public ProvisioningActivity.Id getId() {
+        var agent = getNode();
+        return agent != null ? agent.getId() : null;
     }
 }

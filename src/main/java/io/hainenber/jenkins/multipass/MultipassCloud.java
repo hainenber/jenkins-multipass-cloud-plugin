@@ -21,10 +21,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Future;
+import java.util.concurrent.atomic.AtomicReference;
 import jenkins.model.Jenkins;
 import net.sf.json.JSONObject;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
+import org.jenkinsci.plugins.cloudstats.ProvisioningActivity;
+import org.jenkinsci.plugins.cloudstats.TrackedPlannedNode;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.DataBoundSetter;
 import org.kohsuke.stapler.HttpResponse;
@@ -141,11 +144,13 @@ public class MultipassCloud extends Cloud {
             for (int i = 0; i < numInstancesToLaunch; i++) {
                 final String instanceName = createInstanceName();
                 final MultipassCloud cloud = this;
+                AtomicReference<ProvisioningActivity.Id> provisioningId = new AtomicReference<>();
                 final Future<Node> nodeResolver = Computer.threadPoolForRemoting.submit(() -> {
                     MultipassLauncher launcher = new MultipassLauncher(cloud);
                     try {
                         MultipassAgent agent = new MultipassAgent(cloud, instanceName, launcher, t);
                         agent.setLabelString(t.getLabels());
+                        provisioningId.set(agent.getId());
                         jenkinsController().addNode(agent);
                         return agent;
                     } catch (Descriptor.FormException | IOException e) {
@@ -153,7 +158,13 @@ public class MultipassCloud extends Cloud {
                         return null;
                     }
                 });
-                nodeList.add(new NodeProvisioner.PlannedNode(instanceName, nodeResolver, 1));
+
+                if (provisioningId.get() == null) {
+                    provisioningId.set(new ProvisioningActivity.Id(cloud.getName(), t.getName()));
+                }
+
+                // TODO: remove hard-coded value of executor number and make it configurable
+                nodeList.add(new TrackedPlannedNode(provisioningId.get(), 1, nodeResolver));
             }
 
             lastProvisionTime = System.currentTimeMillis();
