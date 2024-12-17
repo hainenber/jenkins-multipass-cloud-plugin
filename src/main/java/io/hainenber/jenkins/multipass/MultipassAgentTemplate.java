@@ -228,12 +228,6 @@ public class MultipassAgentTemplate extends AbstractDescribableImpl<MultipassAge
             this.client = new MultipassClient();
         }
 
-        @Nonnull
-        @Override
-        public String getDisplayName() {
-            return "";
-        }
-
         // Fill out supported Ubuntu distribution aliases
         public ListBoxModel doFillDistroAliasItems() throws IOException {
             final ListBoxModel options = new ListBoxModel();
