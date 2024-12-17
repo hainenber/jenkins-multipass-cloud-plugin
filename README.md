@@ -6,26 +6,69 @@ A Jenkins cloud plugin dynamically provisions Multipass VMs as Jenkins agent.
 
 ## Getting started
 
-The plugin is still getting built. Instructions are soon to be filled.
+### Screenshots
 
-## Issues
+Figure 1. A Multipass cloud instance
 
-TODO Decide where you're going to host your issues, the default is Jenkins JIRA,
-but you can also enable GitHub issues, If you use GitHub issues there's no need
-for this section; else add the following line:
+![](docs/images/cloud.png)
 
-Report issues and enhancements in the
-[Jenkins issue tracker](https://issues.jenkins.io/).
+Figure 1.1. Configuration screen for said Multipass cloud instance
+
+![](docs/images/cloud_config.png)
+
+Figure 2. Log output from a provisioned node
+
+![](docs/images/node_log.png)
+
+### Installation
+
+For now, interested folks can utilize
+[Plugin ManagerCLI tools for Jenkins](https://github.com/jenkinsci/plugin-installation-manager-tool)
+for installation. I'll publish the plugin to Jenkins plugin registry in the
+foreseeable future.
+
+```
+plugins:    
+    - artifactId: multipass-cloud
+      source:
+        url: https://github.com/hainenber/jenkins-multipass-cloud-plugin/releases/download/0.2.0/multipass-cloud.hpi
+```
+
+### Configuration-as-Code setup
+
+You can provision the cloud at startup with Jenkins's
+[Configuration as Code plugin](https://github.com/jenkinsci/configuration-as-code-plugin)
+. Here's a sample configuration
+
+```
+jenkins:
+  clouds:
+    - multipass:
+        name: "multipass"
+        templates:
+          - name: java-app-builder
+            label: "java"
+            cpu: 1
+            memory: 1G
+            disk: 10G
+            sshCredentialsId: test-ssh
+            cloudInitConfig: |
+              #cloud-config
+              users:
+                - default
+                - name: jenkins
+              package_update: true
+              package_upgrade: true
+              packages:
+                - git
+                - openjdk-21-jre-headless
+                - openjdk-21-jdk-headless
+```
 
 ## Contributing
 
-TODO review the default
-[CONTRIBUTING](https://github.com/jenkinsci/.github/blob/master/CONTRIBUTING.md)
-file and make sure it is appropriate for your plugin, if not then add your own
-one adapted from the base file
-
-Refer to our
-[contribution guidelines](https://github.com/jenkinsci/.github/blob/master/CONTRIBUTING.md)
+This project is open for contributions! Right now I don't have a proper
+guideline so it's the Wild West here :D
 
 ## LICENSE
 
