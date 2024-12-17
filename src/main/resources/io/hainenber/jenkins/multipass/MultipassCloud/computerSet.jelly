@@ -8,20 +8,23 @@
                         <td />
                         <td colspan="${monitors.size()+2}">
                                 <l:overflowButton icon="symbol-add"
-                                                  text="Provision via ${it.displayName}"
+                                                  text="Provision node via ${it.displayName}"
                                                   tooltip="${null}"
+                                                  clazz="jenkins-!-margin-top-2">
                                 >
-                                        <dd:custom>
-                                                <button
-                                                        data-type="multipass-vm-provision"
-                                                        data-form="${formId}"
-                                                        data-url="${it.description}"
-                                                >
-                                                        Provision via ${it.displayName}
-                                                </button>
-                                        </dd:custom>
+                                        <j:forEach var="t" items="${it.templates}">
+                                                <dd:custom>
+                                                        <button class="jenkins-dropdown__item"
+                                                                data-type="multipass-vm-provision"
+                                                                data-form="${formId}"
+                                                                data-url="${t.name}">
+                                                        ${t.name}
+                                                        </button>
+                                                </dd:custom>
+                                        </j:forEach>
                                 </l:overflowButton>
                                 <f:form action="${rootURL}/${it.url}/provision" method="post" name="provision" id="${formId}">
+                                        <input name="template" type="hidden" />
                                 </f:form>
                                 <st:adjunct includes="io.hainenber.jenkins.multipass.MultipassCloud.provision"/>
                         </td>

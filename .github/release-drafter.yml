@@ -2,16 +2,16 @@ _extends: .github
 tag-template: $NEXT_MINOR_VERSION
 name-template: $NEXT_MINOR_VERSION
 categories:
-  - title: '🚀 Features'
+  - title: "🚀 Features"
     labels:
-      - 'feature'
-  - title: '🐛 Bug Fixes'
+      - "feature"
+  - title: "🐛 Bug Fixes"
     labels:
-      - 'fix'
-  - title: '🧰 Maintenance'
+      - "fix"
+  - title: "🧰 Maintenance"
     labels:
-      - 'chore'
+      - "chore"
 template: |
   ## What's Changed
-  
+
   $CHANGES
