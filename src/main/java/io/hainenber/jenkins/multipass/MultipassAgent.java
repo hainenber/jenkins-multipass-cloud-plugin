@@ -86,7 +86,7 @@ public class MultipassAgent extends AbstractCloudSlave implements TrackedItem {
 
             try {
                 LOGGER.info("[multipass-cloud]: Terminating instance named '{}'", instanceName);
-                MultipassClient multipassClient = cloud.getMultipassClient();
+                MultipassClient multipassClient = new MultipassClient();
                 multipassClient.terminateInstance(instanceName);
                 LOGGER.info("[multipass-cloud]: Terminated instance named '{}'", instanceName);
                 Jenkins.get().removeNode(this);

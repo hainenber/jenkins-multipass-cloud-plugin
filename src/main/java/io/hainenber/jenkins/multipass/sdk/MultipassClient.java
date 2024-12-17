@@ -33,7 +33,7 @@ public class MultipassClient {
     }
 
     public List<String> getDistributionAlias() throws IOException {
-        if (Objects.nonNull(availableDistroAliases)) {
+        if (availableDistroAliases != null) {
             return availableDistroAliases;
         }
 
