@@ -248,7 +248,8 @@ public class MultipassCloud extends Cloud {
                         SC_INTERNAL_SERVER_ERROR,
                         "multipass-cloud-plugin cannot provision on-demand agent as requested");
             }
-            var manuallyProvisionedAgentName = manuallyProvisionedAgent.get().displayName;
+            var manuallyProvisionedAgentName =
+                    manuallyProvisionedAgent.get().future.get().getNodeName();
             return HttpResponses.redirectViaContextPath(String.format("/computer/%s", manuallyProvisionedAgentName));
         } catch (Exception e) {
             throw HttpResponses.error(SC_INTERNAL_SERVER_ERROR, e);
