@@ -5,6 +5,7 @@ import hudson.model.TaskListener;
 import hudson.slaves.AbstractCloudComputer;
 import hudson.slaves.AbstractCloudSlave;
 import hudson.slaves.ComputerLauncher;
+import hudson.slaves.OfflineCause;
 import io.hainenber.jenkins.multipass.sdk.MultipassClient;
 import jakarta.annotation.Nonnull;
 import java.io.IOException;
@@ -86,6 +87,8 @@ public class MultipassAgent extends AbstractCloudSlave implements TrackedItem {
 
             try {
                 LOGGER.info("[multipass-cloud]: Terminating instance named '{}'", instanceName);
+                getComputer().disconnect(new MultipassOfflineCause());
+                LOGGER.info("[multipass-cloud]: Disconnect instance named '{}'", instanceName);
                 MultipassClient multipassClient = new MultipassClient();
                 multipassClient.terminateInstance(instanceName);
                 LOGGER.info("[multipass-cloud]: Terminated instance named '{}'", instanceName);
@@ -96,6 +99,13 @@ public class MultipassAgent extends AbstractCloudSlave implements TrackedItem {
             } catch (IOException e) {
                 LOGGER.warn("[multipass-cloud]: Failed to terminate Multipass instance named '{}'", instanceName);
             }
+        }
+    }
+
+    private static class MultipassOfflineCause extends OfflineCause {
+        @Override
+        public String toString() {
+            return "Disconnect Multipass VM";
         }
     }
 
