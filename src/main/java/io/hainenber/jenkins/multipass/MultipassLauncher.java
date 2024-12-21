@@ -11,6 +11,7 @@ import hudson.AbortException;
 import hudson.model.Node;
 import hudson.model.Slave;
 import hudson.model.TaskListener;
+import hudson.remoting.Channel;
 import hudson.security.ACL;
 import hudson.slaves.ComputerLauncher;
 import hudson.slaves.SlaveComputer;
@@ -179,14 +180,22 @@ public class MultipassLauncher extends ComputerLauncher {
     private void startAgent(MultipassComputer computer, TaskListener listener, String absoluteRemoteFs, Connection conn)
             throws IOException {
         var session = conn.openSession();
+        var logger = listener.getLogger();
         String cmd = String.format("cd %s && java -jar %s", Paths.get(absoluteRemoteFs, REMOTING_JAR), REMOTING_JAR);
 
         // Run command to initiate the agent
         session.execCommand(cmd);
-        session.pipeStderr(new DelegateNoCloseOutputStream(listener.getLogger()));
+        session.pipeStderr(new DelegateNoCloseOutputStream(logger));
 
         try {
-            computer.setChannel(session.getStdout(), session.getStdin(), listener.getLogger(), null);
+            computer.setChannel(session.getStdout(), session.getStdin(), logger, new Channel.Listener() {
+                @Override
+                public void onClosed(Channel channel, IOException cause) {
+                    session.close();
+                    conn.close();
+                    super.onClosed(channel, cause);
+                }
+            });
         } catch (InterruptedException e) {
             session.close();
             throw new IOException("Aborted when trying to set I/O channel after initiating agent", e);
@@ -196,13 +205,15 @@ public class MultipassLauncher extends ComputerLauncher {
     private void copyRemotingJarToAgent(TaskListener listener, String absoluteRemoteFs, Connection conn) {
         var remotingDirJarPath = Paths.get(absoluteRemoteFs, REMOTING_JAR);
         var remotingJarPath = Paths.get(String.valueOf(remotingDirJarPath), REMOTING_JAR);
+        var logger = listener.getLogger();
         SCPClient scpClient = new SCPClient(conn);
+
         try {
             // Create directory to contain remoting.jar
-            conn.exec("mkdir -p " + remotingDirJarPath, listener.getLogger());
+            conn.exec("mkdir -p " + remotingDirJarPath, logger);
             // Delete remoting.jar if exists.
-            if (conn.exec("test -f " + remotingJarPath, listener.getLogger()) == 0) {
-                conn.exec("rm " + remotingJarPath, listener.getLogger());
+            if (conn.exec("test -f " + remotingJarPath, logger) == 0) {
+                conn.exec("rm " + remotingJarPath, logger);
             }
             // Copy remoting.jar
             var agentJar = new Slave.JnlpJar(REMOTING_JAR).readFully();
