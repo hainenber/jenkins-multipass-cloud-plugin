@@ -1,0 +1,24 @@
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:f="/lib/form" xmlns:l="/lib/layout">
+    <l:layout norefresh="true" permission="${app.ADMINISTER}" title="${it.name} Configuration">
+    <st:include page="sidepanel.jelly"/>
+    <l:main-panel>
+        <h3>This is a read-only view. Click <a href="${rootURL}/manage/cloud"> here</a> to configure your instances.</h3>
+        <f:form method="post" action="configSubmit" name="config">
+            <j:set var="instance" value="${it.node}" />
+            <f:invisibleEntry>
+                <input type="hidden" name="name" value="${it.name}" />
+            </f:invisibleEntry>
+            <f:entry title="${%# of executors}" field="numExecutors">
+                <f:readOnlyTextbox/>
+            </f:entry>
+            <f:entry title="${%Remote FS root}" field="remoteFS">
+                <f:readOnlyTextbox/>
+            </f:entry>
+            <f:entry title="${%Labels}" field="labelString">
+                <f:readOnlyTextbox/>
+            </f:entry>
+        </f:form>
+    </l:main-panel>
+    </l:layout>
+</j:jelly>

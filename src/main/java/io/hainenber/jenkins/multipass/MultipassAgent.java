@@ -1,5 +1,6 @@
 package io.hainenber.jenkins.multipass;
 
+import hudson.Extension;
 import hudson.model.Descriptor;
 import hudson.model.TaskListener;
 import hudson.slaves.AbstractCloudComputer;
@@ -113,5 +114,16 @@ public class MultipassAgent extends AbstractCloudSlave implements TrackedItem {
     @Override
     public ProvisioningActivity.Id getId() {
         return id;
+    }
+
+
+    @Extension
+    @SuppressWarnings("unused") // used by jelly
+    public static final class DescriptorImpl extends SlaveDescriptor {
+        @Nonnull
+        @Override
+        public String getDisplayName() {
+            return "Multipass VM";
+        }
     }
 }
