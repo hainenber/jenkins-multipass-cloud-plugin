@@ -49,7 +49,7 @@
     <disableTestInjection>false</disableTestInjection>
 
     <!-- Configuration-as-Code support -->
-    <configuration-as-code.version>1903.v004d55388f30</configuration-as-code.version>
+    <configuration-as-code.version>1909.vb_b_f59a_27d013</configuration-as-code.version>
   </properties>
 
   <dependencyManagement>
