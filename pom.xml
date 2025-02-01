@@ -94,7 +94,7 @@
     <dependency>
       <groupId>org.jenkins-ci.plugins</groupId>
       <artifactId>cloud-stats</artifactId>
-      <version>336.v788e4055508b_</version>
+      <version>377.vd8a_6c953e98e</version>
     </dependency>
 
     <!-- For access to the credentials used in controller-agent communication -->
